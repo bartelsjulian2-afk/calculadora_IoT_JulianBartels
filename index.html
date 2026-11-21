@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calculadora de interés simple</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      padding: 24px; background: #f1f5f9; color: #172033;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(100%, 520px); background: white; padding: 28px;
+      border-radius: 18px; box-shadow: 0 12px 35px #17203318;
+    }
+    h1 { margin: 0 0 8px; font-size: 1.7rem; }
+    .intro { color: #536174; margin-top: 0; line-height: 1.5; }
+    label { display: block; font-weight: 650; margin: 18px 0 7px; }
+    input, select {
+      width: 100%; padding: 12px 13px; border: 1px solid #cbd5e1;
+      border-radius: 9px; font: inherit; background: white;
+    }
+    button {
+      width: 100%; margin-top: 22px; padding: 13px; border: 0;
+      border-radius: 10px; background: #2457d6; color: white;
+      font: inherit; font-weight: 700; cursor: pointer;
+    }
+    button:hover { background: #1946b8; }
+    .result {
+      display: none; margin-top: 22px; padding: 17px;
+      background: #eef4ff; border-radius: 12px; line-height: 1.7;
+    }
+    .result strong { color: #173f9e; }
+    .formula {
+      margin-top: 20px; padding: 12px; background: #f8fafc;
+      border-radius: 9px; color: #344256; text-align: center;
+    }
+    .error { color: #b42318; min-height: 1.4em; margin: 10px 0 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Calculadora de interés simple</h1>
+    <p class="intro">Ingresa el capital, la tasa anual y el tiempo para calcular el interés generado.</p>
+
+    <form id="calc">
+      <label for="capital">Capital inicial ($)</label>
+      <input id="capital" type="number" min="0.01" step="any" placeholder="Ej. 1000000" required>
+
+      <label for="tasa">Tasa de interés anual (%)</label>
+      <input id="tasa" type="number" min="0" step="any" placeholder="Ej. 8" required>
+
+      <label for="tiempo">Tiempo</label>
+      <input id="tiempo" type="number" min="0.01" step="any" placeholder="Ej. 2" required>
+
+      <label for="unidad">Unidad de tiempo</label>
+      <select id="unidad">
+        <option value="1">Años</option>
+        <option value="12">Meses</option>
+        <option value="365">Días</option>
+      </select>
+
+      <button type="submit">Calcular interés</button>
+      <p class="error" id="error" role="alert"></p>
+    </form>
+
+    <section class="result" id="resultado" aria-live="polite">
+      <div>Interés generado: <strong id="interes"></strong></div>
+      <div>Monto total (capital + interés): <strong id="total"></strong></div>
+    </section>
+
+    <div class="formula">
+      <strong>Fórmula:</strong> I = C × i × t<br>
+      I = interés · C = capital · i = tasa anual · t = tiempo en años
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById('calc');
+    const money = value => new Intl.NumberFormat('es-CO', {
+      style: 'currency', currency: 'COP', maximumFractionDigits: 2
+    }).format(value);
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const capital = Number(document.getElementById('capital').value);
+      const tasa = Number(document.getElementById('tasa').value);
+      const tiempo = Number(document.getElementById('tiempo').value);
+      const diasPorUnidad = Number(document.getElementById('unidad').value);
+      const error = document.getElementById('error');
+      const resultado = document.getElementById('resultado');
+
+      if (!Number.isFinite(capital) || !Number.isFinite(tasa) ||
+          !Number.isFinite(tiempo) || capital <= 0 || tasa < 0 || tiempo <= 0) {
+        error.textContent = 'Revisa los datos: el capital y el tiempo deben ser mayores que cero, y la tasa no puede ser negativa.';
+        resultado.style.display = 'none';
+        return;
+      }
+
+      error.textContent = '';
+      const tiempoEnAnios = tiempo / diasPorUnidad;
+      const interes = capital * (tasa / 100) * tiempoEnAnios;
+      document.getElementById('interes').textContent = money(interes);
+      document.getElementById('total').textContent = money(capital + interes);
+      resultado.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
